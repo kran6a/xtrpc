@@ -1,6 +1,6 @@
-import { isProcedure } from "./guard";
+import { isProcedure } from "./guard.js";
 import { Node, SourceFile, ts } from "ts-morph";
-import { getFirstSiblingByKindOrThrow, iterateNodes } from "~/ast";
+import { getFirstSiblingByKindOrThrow, iterateNodes } from "./ast.js";
 
 type Transformer = (node: Node) => Array<() => Node<ts.Node> | void>;
 
@@ -33,7 +33,7 @@ export const pruneRouter =
       .getParentOrThrow()
       .getFirstDescendantByKindOrThrow(ts.SyntaxKind.ObjectLiteralExpression);
 
-    return expr
+    const ret = expr
       .getChildrenOfKind(ts.SyntaxKind.PropertyAssignment)
       .flatMap((route) => {
         const [k, _, v] = route.getChildren();
@@ -71,4 +71,6 @@ export const pruneRouter =
         }
         return [];
       });
+      console.log(ret);
+    return ret;
   };

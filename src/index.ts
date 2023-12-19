@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-import path from "path";
 import { Project } from "ts-morph";
-import { findNodeOrThrow } from "~/ast";
-import { readConfig } from "~/config";
-import { isAppRouterAlias, isContext, isMiddleware, isRouter } from "~/guard";
-import { getAllTransformers, pruneRouter, redefine } from "~/transformer";
+import {join} from "path";
+import { findNodeOrThrow } from "./ast.js";
+import { readConfig } from "./config.js";
+import { isAppRouterAlias, isContext, isMiddleware, isRouter } from "./guard.js";
+import stripper from "./stripper.js";
+import { getAllTransformers, pruneRouter, redefine } from "./transformer.js";
 
 const main = async () => {
   const cfg = await readConfig("xtrpc.config.json");
@@ -45,14 +46,14 @@ const main = async () => {
     throw new Error("Could not emit output.");
   }
 
-  const outPath = path.join(cfg.dstProject, cfg.outDir, cfg.outName);
+  const outPath = join(cfg.dstProject, cfg.outDir, cfg.outName);
 
   dstProj.createSourceFile(outPath, dstFile.getText(), {
     overwrite: cfg.overwrite,
   });
 
   await dstProj.save();
-
+  stripper(outPath);
   return `Generated ${outPath}`;
 };
 
